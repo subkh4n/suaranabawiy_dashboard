@@ -1,6 +1,6 @@
-import { Radio, Users, Package, Headphones } from "lucide-react";
+import { Radio, Package, Headphones } from "lucide-react";
 import { db } from "@suara-nabawiy/db";
-import { products, orders, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
+import { products, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
 import { count } from "drizzle-orm";
 
 /**
@@ -10,16 +10,21 @@ import { count } from "drizzle-orm";
 export default async function DashboardPage() {
   // Fetch statistics directly from database
   const [
-    [productCount],
-    [audioCount],
-    [scheduleCount],
-    [orderCount]
+    productCountResults,
+    audioCountResults,
+    scheduleCountResults,
+    orderCountResults
   ] = await Promise.all([
     db.select({ value: count() }).from(products),
     db.select({ value: count() }).from(audioLibrary),
     db.select({ value: count() }).from(schedules),
     db.select({ value: count() }).from(orders),
   ]);
+
+  const productCount = productCountResults[0]?.value ?? 0;
+  const audioCount = audioCountResults[0]?.value ?? 0;
+  const scheduleCount = scheduleCountResults[0]?.value ?? 0;
+  const orderCount = orderCountResults[0]?.value ?? 0;
 
   return (
     <div>
@@ -39,19 +44,19 @@ export default async function DashboardPage() {
         <StatCard
           icon={<Headphones className="h-5 w-5" />}
           title="Total Audio"
-          value={audioCount.value.toString()}
+          value={audioCount.toString()}
           subtitle="Di library"
         />
         <StatCard
           icon={<Package className="h-5 w-5" />}
           title="Total Produk"
-          value={productCount.value.toString()}
+          value={productCount.toString()}
           subtitle="Di katalog"
         />
         <StatCard
           icon={<Package className="h-5 w-5" />}
           title="Total Order"
-          value={orderCount.value.toString()}
+          value={orderCount.toString()}
           subtitle="Total masuk"
         />
       </div>
