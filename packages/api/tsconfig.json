@@ -8,6 +8,7 @@
     "noEmit": false,
     "declaration": true,
     "baseUrl": ".",
+    "incremental": false,
     "paths": {
       "@/*": ["./src/*"]
     }
