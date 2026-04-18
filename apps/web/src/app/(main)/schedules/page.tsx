@@ -1,7 +1,7 @@
-"use client";
+import { Calendar, Radio } from "lucide-react";
+import { db, schema } from "@suara-nabawiy/db";
 
-import { useEffect, useState } from "react";
-import { Calendar, Radio, Loader2 } from "lucide-react";
+export const dynamic = "force-dynamic";
 
 interface Schedule {
   id: number;
@@ -13,59 +13,49 @@ interface Schedule {
   isLive: boolean;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://ep-little-bird-ao5f9s9j.apirest.c-2.ap-southeast-1.aws.neon.tech/neondb/rest/v1";
-
 function formatTimeRange(start: string, end: string) {
   const format = (iso: string) => {
-    return new Date(iso)
-      .toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
-      .replace(".", ":");
+    try {
+      return new Date(iso)
+        .toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+        .replace(".", ":");
+    } catch {
+      return "--:--";
+    }
   };
   return `${format(start)} — ${format(end)}`;
 }
 
 /**
- * Halaman Jadwal Siaran — Jadwal harian & mingguan
- * Menampilkan jadwal siaran radio dan indikator LIVE
+ * Halaman Jadwal Siaran (Server Component)
+ * Mengambil data langsung dari Neon Database melalui @suara-nabawiy/db
  */
-export default function SchedulesPage() {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function SchedulesPage() {
+  let schedules: Schedule[] = [];
+  let error: string | null = null;
 
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        const res = await fetch(`${API_URL}/schedules`);
-        if (!res.ok) throw new Error("Gagal mengambil data jadwal");
-        const data = await res.json();
-        
-        // Map snake_case database columns to camelCase component props
-        const mappedData = data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          startTime: item.start_time,
-          endTime: item.end_time,
-          speakerName: item.speaker_name,
-          isLive: item.is_live,
-        }));
+  try {
+    const rawData = await db.select().from(schema.schedules);
+    
+    // Map snake_case to camelCase
+    const mappedData: Schedule[] = rawData.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      startTime: item.start_time?.toISOString() || "",
+      endTime: item.end_time?.toISOString() || "",
+      speakerName: item.speaker_name,
+      isLive: item.is_live,
+    }));
 
-        // Urutkan berdasarkan waktu mulai tercepat
-        const sortedData = mappedData.sort(
-          (a: Schedule, b: Schedule) =>
-            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-        );
-        setSchedules(sortedData);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSchedules();
-  }, []);
+    // Sort by start time
+    schedules = mappedData.sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+  } catch (err: any) {
+    console.error("Database Error:", err);
+    error = err.message;
+  }
 
   return (
     <div className="px-4 py-12 sm:px-6 lg:px-8">
@@ -86,38 +76,29 @@ export default function SchedulesPage() {
         <section className="mb-12">
           <h2 className="mb-4 text-xl font-semibold">Tersedia Saat Ini</h2>
           
-          {isLoading && (
-            <div className="flex items-center justify-center py-10 text-muted-foreground">
-              <Loader2 className="h-6 w-6 animate-spin" />
-              <span className="ml-3">Memuat jadwal...</span>
-            </div>
-          )}
-
-          {error && !isLoading && (
+          {error ? (
             <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive">
               <p>Gagal memuat jadwal siang ini.</p>
               <p className="text-xs opacity-70 mt-1">({error})</p>
             </div>
-          )}
-
-          {!isLoading && !error && schedules.length === 0 && (
+          ) : schedules.length === 0 ? (
             <div className="py-10 text-center text-muted-foreground">
               <p>Belum ada jadwal yang disiarkan hari ini.</p>
             </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {schedules.map((item) => (
+                <ScheduleCard
+                  key={item.id}
+                  time={formatTimeRange(item.startTime, item.endTime)}
+                  title={item.title}
+                  speaker={item.speakerName}
+                  description={item.description || ""}
+                  isLive={item.isLive}
+                />
+              ))}
+            </div>
           )}
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {schedules.map((item) => (
-              <ScheduleCard
-                key={item.id}
-                time={formatTimeRange(item.startTime, item.endTime)}
-                title={item.title}
-                speaker={item.speakerName}
-                description={item.description || ""}
-                isLive={item.isLive}
-              />
-            ))}
-          </div>
         </section>
 
         {/* Info Jadwal Mingguan */}
