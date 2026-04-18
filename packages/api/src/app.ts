@@ -6,6 +6,7 @@ import { scheduleRoutes } from "./routes/schedules";
 import { libraryRoutes } from "./routes/library";
 import { productsRoutes } from "./routes/products";
 import { ordersRoutes } from "./routes/orders";
+import { uploadRoutes } from "./routes/upload";
 import { errorHandler } from "./middleware/error-handler";
 
 /** Aplikasi utama Hono.js */
@@ -35,5 +36,6 @@ app.route("/schedules", scheduleRoutes);
 app.route("/library", libraryRoutes);
 app.route("/products", productsRoutes);
 app.route("/orders", ordersRoutes);
+app.route("/upload", uploadRoutes);
 
 export { app };

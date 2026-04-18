@@ -242,11 +242,15 @@ export default function CheckoutPage() {
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.id} className="flex items-center gap-4">
-                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-border bg-background">
-                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/80 text-xs font-bold text-white">
+                <div className="relative flex h-16 w-16 shrink-0 overflow-hidden items-center justify-center rounded-lg border border-border bg-background">
+                  <span className="absolute z-10 -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/80 text-xs font-bold text-white">
                     {item.quantity}
                   </span>
-                  <div className="h-6 w-6 opacity-20"><CreditCard /></div> {/* image placeholder */}
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-6 w-6 opacity-20"><CreditCard /></div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium line-clamp-2">{item.name}</p>

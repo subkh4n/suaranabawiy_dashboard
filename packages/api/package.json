@@ -11,16 +11,18 @@
     "clean": "rimraf dist .turbo node_modules"
   },
   "dependencies": {
-    "hono": "^4.7.0",
+    "@aws-sdk/client-s3": "^3.1032.0",
+    "@aws-sdk/s3-request-presigner": "^3.1032.0",
     "@hono/node-server": "^1.13.0",
     "@hono/zod-validator": "^0.4.0",
-    "zod": "^3.24.0",
-    "@suara-nabawiy/db": "*"
+    "@suara-nabawiy/db": "*",
+    "hono": "^4.7.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
-    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
     "tsup": "^8.3.0",
-    "typescript": "^5.8.0",
-    "@types/node": "^22.0.0"
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
   }
 }

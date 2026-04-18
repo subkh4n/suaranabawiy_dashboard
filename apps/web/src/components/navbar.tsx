@@ -74,7 +74,7 @@ export function Navbar() {
 
           {/* Cart Icon */}
           <Link
-            href="/checkout"
+            href="/cart"
             className="group relative flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             aria-label="Keranjang Belanja"
           >

@@ -60,6 +60,7 @@ export default function ShopPage() {
       name: product.name,
       price: product.price,
       quantity: 1,
+      image: product.images?.[0],
     };
     addToCart(item);
   };
@@ -107,11 +108,19 @@ export default function ShopPage() {
               key={product.id}
               className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-brand-primary/50 hover:shadow-lg hover:shadow-brand-primary/5"
             >
-              {/* Image Placeholder */}
+              {/* Product Image */}
               <div className="relative aspect-square w-full bg-secondary">
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-                  <ShoppingBag className="h-16 w-16" />
-                </div>
+                {product.images && product.images.length > 0 ? (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
+                    <ShoppingBag className="h-16 w-16" />
+                  </div>
+                )}
                 {product.stock <= 5 && product.stock > 0 && (
                   <span className="absolute left-2 top-2 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-black backdrop-blur-sm">
                     Sisa {product.stock}
