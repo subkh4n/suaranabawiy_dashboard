@@ -3,6 +3,7 @@ import "./globals.css";
 import { RadioPlayer } from "@/components/radio-player";
 import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/context/cart-context";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: {
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="dark">
+    <html lang="id" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -41,14 +42,21 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <CartProvider>
-          <div className="flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1 pb-24">{children}</main>
-            {/* Persistent Radio Player — tidak re-mount saat navigasi */}
-            <RadioPlayer />
-          </div>
-        </CartProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <CartProvider>
+            <div className="flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1 pb-24">{children}</main>
+              {/* Persistent Radio Player — tidak re-mount saat navigasi */}
+              <RadioPlayer />
+            </div>
+          </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 /** Link navigasi utama */
 const NAV_LINKS = [
   { href: "/", label: "Radio", icon: Radio },
@@ -67,6 +69,9 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* Cart Icon */}
           <Link
             href="/checkout"
@@ -82,6 +87,7 @@ export function Navbar() {
           </Link>
 
           {/* Mobile Menu Toggle */}
+
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

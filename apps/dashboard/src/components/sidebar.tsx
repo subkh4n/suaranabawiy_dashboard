@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Radio,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /** Menu items sidebar */
 const MENU_ITEMS = [
@@ -66,7 +67,8 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border p-4 flex flex-col gap-4">
+          <ThemeToggle />
           <p className="text-xs text-muted-foreground/50">v0.1.0</p>
         </div>
       </div>
