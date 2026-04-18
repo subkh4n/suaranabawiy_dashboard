@@ -36,19 +36,27 @@ export default function SchedulesPage() {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/v1/schedules/today`);
+        const res = await fetch(`${API_URL}/schedules`);
         if (!res.ok) throw new Error("Gagal mengambil data jadwal");
-        const json = await res.json();
-        if (json.success) {
-          // Urutkan berdasarkan waktu mulai tercepat
-          const sortedData = json.data.sort(
-            (a: Schedule, b: Schedule) =>
-              new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-          );
-          setSchedules(sortedData);
-        } else {
-          setError(json.error?.message || "Format error");
-        }
+        const data = await res.json();
+        
+        // Map snake_case database columns to camelCase component props
+        const mappedData = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          startTime: item.start_time,
+          endTime: item.end_time,
+          speakerName: item.speaker_name,
+          isLive: item.is_live,
+        }));
+
+        // Urutkan berdasarkan waktu mulai tercepat
+        const sortedData = mappedData.sort(
+          (a: Schedule, b: Schedule) =>
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        );
+        setSchedules(sortedData);
       } catch (err: any) {
         setError(err.message);
       } finally {

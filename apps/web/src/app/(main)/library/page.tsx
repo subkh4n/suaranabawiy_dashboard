@@ -78,23 +78,28 @@ export default function LibraryPage() {
     const fetchAudios = async () => {
       try {
         setIsLoading(true);
-        // Using ?limit=50 to fetch a broad stroke, or pass search queries
-        // Assuming we pass category + q if we want server filtering. 
-        // For now, let's let backend filter if we pass it, otherwise fetch 50 and filter local
         const urlArgs = new URLSearchParams();
         urlArgs.append("limit", "50");
-        if (category) urlArgs.append("category", category);
-        if (search) urlArgs.append("q", search);
+        if (category) urlArgs.append("category", `eq.${category}`);
+        if (search) urlArgs.append("title", `ilike.*${search}*`);
 
-        const res = await fetch(`${API_URL}/api/v1/library?${urlArgs.toString()}`);
+        const res = await fetch(`${API_URL}/audio_library?${urlArgs.toString()}`);
         if (!res.ok) throw new Error("Gagal mengambil data audio dari Neon DB");
-        const json = await res.json();
+        const data = await res.json();
         
-        if (json.success) {
-          setAudioList(json.data);
-        } else {
-          setError(json.error?.message || "Format error");
-        }
+        // Map snake_case to camelCase
+        const mappedData = data.map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          category: a.category,
+          speaker: a.speaker,
+          description: a.description,
+          duration: a.duration,
+          playsCount: a.plays_count,
+          fileUrl: a.file_url,
+          createdAt: a.created_at,
+        }));
+        setAudioList(mappedData);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -102,7 +107,6 @@ export default function LibraryPage() {
       }
     };
 
-    // Debounce the fetch request
     const timer = setTimeout(() => {
       fetchAudios();
     }, 300);

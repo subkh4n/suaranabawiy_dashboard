@@ -31,19 +31,16 @@ export default function ShopPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/v1/products`);
+        const res = await fetch(`${API_URL}/products`);
         if (!res.ok) throw new Error("Gagal mengambil data produk");
-        const json = await res.json();
-        if (json.success) {
-          // parse JSON string on images if needed
-          const parsedData = json.data.map((p: any) => ({
-            ...p,
-            images: typeof p.images === "string" ? JSON.parse(p.images) : p.images,
-          }));
-          setProducts(parsedData);
-        } else {
-          setError(json.error?.message || "Error format");
-        }
+        const data = await res.json();
+        
+        // parse JSON string on images if needed (Data API usually returns them correctly)
+        const parsedData = data.map((p: any) => ({
+          ...p,
+          images: typeof p.images === "string" ? JSON.parse(p.images) : p.images,
+        }));
+        setProducts(parsedData);
       } catch (err: any) {
         setError(err.message);
       } finally {
