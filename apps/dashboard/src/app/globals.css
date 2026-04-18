@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ========================================
    Suara Nabawiy Dashboard — Theme Configuration
    ======================================== */
