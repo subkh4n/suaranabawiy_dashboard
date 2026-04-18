@@ -9,7 +9,6 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=@suara-nabawiy/web",
-    "dev:dashboard": "turbo run dev --filter=@suara-nabawiy/dashboard",
     "dev:api": "turbo run dev --filter=@suara-nabawiy/api",
     "build": "turbo run build",
     "lint": "turbo run lint",

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { RadioPlayer } from "@/components/radio-player";
-import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/context/cart-context";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -49,12 +47,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CartProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1 pb-24">{children}</main>
-              {/* Persistent Radio Player — tidak re-mount saat navigasi */}
-              <RadioPlayer />
-            </div>
+            {children}
           </CartProvider>
         </ThemeProvider>
       </body>

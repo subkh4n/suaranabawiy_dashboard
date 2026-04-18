@@ -13,18 +13,18 @@ import {
 
 /** Menu items sidebar */
 const MENU_ITEMS = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/schedules", label: "Jadwal Siaran", icon: Calendar },
-  { href: "/library", label: "Audio Library", icon: Headphones },
-  { href: "/products", label: "Produk", icon: Package },
-  { href: "/orders", label: "Order", icon: ShoppingCart },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/schedules", label: "Jadwal Siaran", icon: Calendar },
+  { href: "/dashboard/library", label: "Audio Library", icon: Headphones },
+  { href: "/dashboard/products", label: "Produk", icon: Package },
+  { href: "/dashboard/orders", label: "Order", icon: ShoppingCart },
 ] as const;
 
 /**
- * Sidebar — Navigasi admin dashboard
+ * DashboardSidebar — Navigasi admin dashboard
  * Fixed di sisi kiri, collapsible di mobile
  */
-export function Sidebar() {
+export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
