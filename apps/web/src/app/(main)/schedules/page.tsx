@@ -1,10 +1,64 @@
-import { Calendar, Radio } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Calendar, Radio, Loader2 } from "lucide-react";
+
+interface Schedule {
+  id: number;
+  title: string;
+  description: string | null;
+  startTime: string;
+  endTime: string;
+  speakerName: string;
+  isLive: boolean;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+
+function formatTimeRange(start: string, end: string) {
+  const format = (iso: string) => {
+    return new Date(iso)
+      .toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+      .replace(".", ":");
+  };
+  return `${format(start)} — ${format(end)}`;
+}
 
 /**
  * Halaman Jadwal Siaran — Jadwal harian & mingguan
  * Menampilkan jadwal siaran radio dan indikator LIVE
  */
 export default function SchedulesPage() {
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/v1/schedules/today`);
+        if (!res.ok) throw new Error("Gagal mengambil data jadwal");
+        const json = await res.json();
+        if (json.success) {
+          // Urutkan berdasarkan waktu mulai tercepat
+          const sortedData = json.data.sort(
+            (a: Schedule, b: Schedule) =>
+              new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+          );
+          setSchedules(sortedData);
+        } else {
+          setError(json.error?.message || "Format error");
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSchedules();
+  }, []);
+
   return (
     <div className="px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
@@ -22,43 +76,39 @@ export default function SchedulesPage() {
 
         {/* Jadwal Hari Ini */}
         <section className="mb-12">
-          <h2 className="mb-4 text-xl font-semibold">Hari Ini</h2>
+          <h2 className="mb-4 text-xl font-semibold">Tersedia Saat Ini</h2>
+          
+          {isLoading && (
+            <div className="flex items-center justify-center py-10 text-muted-foreground">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span className="ml-3">Memuat jadwal...</span>
+            </div>
+          )}
+
+          {error && !isLoading && (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive">
+              <p>Gagal memuat jadwal siang ini.</p>
+              <p className="text-xs opacity-70 mt-1">({error})</p>
+            </div>
+          )}
+
+          {!isLoading && !error && schedules.length === 0 && (
+            <div className="py-10 text-center text-muted-foreground">
+              <p>Belum ada jadwal yang disiarkan hari ini.</p>
+            </div>
+          )}
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <ScheduleCard
-              time="05:00 — 06:30"
-              title="Tafsir Al-Quran"
-              speaker="Ust. Ahmad Zainuddin, Lc."
-              description="Pembahasan tafsir surat Al-Baqarah ayat 1-5"
-              isLive={false}
-            />
-            <ScheduleCard
-              time="08:00 — 09:30"
-              title="Fiqh Ibadah"
-              speaker="Ust. Abdul Somad, Lc., MA."
-              description="Bab Shalat — Tata Cara Sujud Sahwi"
-              isLive
-            />
-            <ScheduleCard
-              time="13:00 — 14:30"
-              title="Hadits Arbain"
-              speaker="Ust. Firanda Andirja, Lc."
-              description="Hadits ke-5: Bid'ah dalam agama"
-              isLive={false}
-            />
-            <ScheduleCard
-              time="16:00 — 17:00"
-              title="Sirah Nabawiyah"
-              speaker="Ust. Khalid Basalamah"
-              description="Hijrah ke Madinah — Pelajaran dan Hikmah"
-              isLive={false}
-            />
-            <ScheduleCard
-              time="19:30 — 21:00"
-              title="Aqidah Ahlus Sunnah"
-              speaker="Ust. Yazid bin Abdul Qadir Jawas"
-              description="Pembahasan kitab Ushulus Sunnah"
-              isLive={false}
-            />
+            {schedules.map((item) => (
+              <ScheduleCard
+                key={item.id}
+                time={formatTimeRange(item.startTime, item.endTime)}
+                title={item.title}
+                speaker={item.speakerName}
+                description={item.description || ""}
+                isLive={item.isLive}
+              />
+            ))}
           </div>
         </section>
 
@@ -69,8 +119,8 @@ export default function SchedulesPage() {
             <div className="flex items-center gap-3 text-muted-foreground">
               <Radio className="h-5 w-5" />
               <p className="text-sm">
-                Jadwal mingguan akan tersedia setelah API dan database
-                dikonfigurasi. Data akan otomatis sinkron dengan jadwal siaran.
+                Jadwal di atas adalah jadwal siaran yang disinkronisasi langsung dari database. 
+                Jadwal mingguan lengkap lainnya akan menyusul melalui dasbor API baru kami.
               </p>
             </div>
           </div>
