@@ -33,7 +33,7 @@ interface AudioItem {
   createdAt: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://ep-little-bird-ao5f9s9j.apirest.c-2.ap-southeast-1.aws.neon.tech/neondb/rest/v1";
 
 /** Format durasi dalam detik ke MM:SS */
 function formatDuration(seconds: number): string {
