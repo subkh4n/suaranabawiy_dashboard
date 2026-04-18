@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Search,
   Play,
@@ -9,6 +9,7 @@ import {
   Headphones,
   TrendingUp,
   Filter,
+  Loader2,
 } from "lucide-react";
 
 /** Kategori audio */
@@ -21,138 +22,6 @@ const CATEGORIES = [
   { value: "sirah", label: "Sirah" },
 ] as const;
 
-/** Data mock audio */
-const AUDIO_DATA: AudioItem[] = [
-  {
-    id: 1,
-    title: "Tafsir Surah Al-Fatihah",
-    category: "tafsir",
-    speaker: "Ust. Ahmad Zainuddin, Lc.",
-    description:
-      "Pembahasan lengkap tafsir surat Al-Fatihah, makna dan hikmahnya",
-    duration: 3420,
-    playsCount: 1283,
-    createdAt: "2026-03-10",
-  },
-  {
-    id: 2,
-    title: "Fiqh Shalat — Rukun & Syarat",
-    category: "fiqh",
-    speaker: "Ust. Abdul Somad, Lc., MA.",
-    description: "Penjelasan detail rukun dan syarat sahnya shalat",
-    duration: 4500,
-    playsCount: 2541,
-    createdAt: "2026-03-12",
-  },
-  {
-    id: 3,
-    title: "Aqidah Ahlus Sunnah — Iman kepada Allah",
-    category: "aqidah",
-    speaker: "Ust. Yazid bin Abdul Qadir Jawas",
-    description:
-      "Kitab Ushulus Sunnah — Pembahasan tentang keimanan kepada Allah",
-    duration: 5100,
-    playsCount: 987,
-    createdAt: "2026-03-15",
-  },
-  {
-    id: 4,
-    title: "Hadits Arbain #1 — Niat",
-    category: "hadits",
-    speaker: "Ust. Firanda Andirja, Lc.",
-    description: "Pembahasan hadits pertama: Innamal a'malu binniyat",
-    duration: 2700,
-    playsCount: 3102,
-    createdAt: "2026-03-18",
-  },
-  {
-    id: 5,
-    title: "Sirah Nabawiyah — Kelahiran Nabi ﷺ",
-    category: "sirah",
-    speaker: "Ust. Khalid Basalamah",
-    description:
-      "Kisah kelahiran Nabi Muhammad ﷺ dan tanda-tanda kenabian",
-    duration: 3900,
-    playsCount: 1756,
-    createdAt: "2026-03-20",
-  },
-  {
-    id: 6,
-    title: "Tafsir Surah Al-Baqarah Ayat 1-5",
-    category: "tafsir",
-    speaker: "Ust. Ahmad Zainuddin, Lc.",
-    description:
-      "Sifat-sifat orang beriman dalam pembukaan surat Al-Baqarah",
-    duration: 4200,
-    playsCount: 892,
-    createdAt: "2026-03-22",
-  },
-  {
-    id: 7,
-    title: "Fiqh Puasa Ramadhan",
-    category: "fiqh",
-    speaker: "Ust. Abdul Somad, Lc., MA.",
-    description:
-      "Hukum-hukum seputar puasa Ramadhan dan hal-hal yang membatalkannya",
-    duration: 5400,
-    playsCount: 4210,
-    createdAt: "2026-03-25",
-  },
-  {
-    id: 8,
-    title: "Hadits Arbain #2 — Islam, Iman, Ihsan",
-    category: "hadits",
-    speaker: "Ust. Firanda Andirja, Lc.",
-    description: "Hadits Jibril tentang tiga tingkatan agama",
-    duration: 3300,
-    playsCount: 2890,
-    createdAt: "2026-03-28",
-  },
-  {
-    id: 9,
-    title: "Aqidah — Nama & Sifat Allah",
-    category: "aqidah",
-    speaker: "Ust. Yazid bin Abdul Qadir Jawas",
-    description:
-      "Memahami Asma'ul Husna dan sifat-sifat kesempurnaan Allah",
-    duration: 4800,
-    playsCount: 1120,
-    createdAt: "2026-04-01",
-  },
-  {
-    id: 10,
-    title: "Sirah — Hijrah ke Madinah",
-    category: "sirah",
-    speaker: "Ust. Khalid Basalamah",
-    description:
-      "Perjalanan hijrah Nabi ﷺ dari Makkah ke Madinah",
-    duration: 4100,
-    playsCount: 1543,
-    createdAt: "2026-04-05",
-  },
-  {
-    id: 11,
-    title: "Fiqh Zakat — Harta yang Wajib Dizakati",
-    category: "fiqh",
-    speaker: "Ust. Abdul Somad, Lc., MA.",
-    description:
-      "Pembahasan lengkap harta yang wajib dizakati dan nishabnya",
-    duration: 3600,
-    playsCount: 1678,
-    createdAt: "2026-04-08",
-  },
-  {
-    id: 12,
-    title: "Hadits Arbain #3 — Rukun Islam",
-    category: "hadits",
-    speaker: "Ust. Firanda Andirja, Lc.",
-    description: "Hadits tentang lima rukun Islam",
-    duration: 2850,
-    playsCount: 2456,
-    createdAt: "2026-04-10",
-  },
-];
-
 interface AudioItem {
   id: number;
   title: string;
@@ -164,8 +33,11 @@ interface AudioItem {
   createdAt: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+
 /** Format durasi dalam detik ke MM:SS */
 function formatDuration(seconds: number): string {
+  if (!seconds) return "0:00";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
@@ -175,6 +47,7 @@ function formatDuration(seconds: number): string {
 
 /** Format angka ke singkatan */
 function formatCount(count: number): string {
+  if (!count) return "0";
   if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
   return count.toString();
 }
@@ -196,21 +69,56 @@ export default function LibraryPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [playingId, setPlayingId] = useState<number | null>(null);
+  
+  const [audioList, setAudioList] = useState<AudioItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filter data berdasarkan search & kategori
-  const filtered = AUDIO_DATA.filter((item) => {
-    const matchSearch =
-      !search ||
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.speaker.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = !category || item.category === category;
-    return matchSearch && matchCategory;
-  });
+  useEffect(() => {
+    const fetchAudios = async () => {
+      try {
+        setIsLoading(true);
+        // Using ?limit=50 to fetch a broad stroke, or pass search queries
+        // Assuming we pass category + q if we want server filtering. 
+        // For now, let's let backend filter if we pass it, otherwise fetch 50 and filter local
+        const urlArgs = new URLSearchParams();
+        urlArgs.append("limit", "50");
+        if (category) urlArgs.append("category", category);
+        if (search) urlArgs.append("q", search);
+
+        const res = await fetch(`${API_URL}/api/v1/library?${urlArgs.toString()}`);
+        if (!res.ok) throw new Error("Gagal mengambil data audio dari Neon DB");
+        const json = await res.json();
+        
+        if (json.success) {
+          setAudioList(json.data);
+        } else {
+          setError(json.error?.message || "Format error");
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce the fetch request
+    const timer = setTimeout(() => {
+      fetchAudios();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search, category]);
+
+  // Karena backend sudah me-filter via /api/v1/library?q=&category=, 
+  // filtered data adalah audioList.
+  const filtered = audioList;
 
   // Stats
-  const totalAudio = AUDIO_DATA.length;
-  const totalDuration = AUDIO_DATA.reduce((acc, a) => acc + a.duration, 0);
-  const totalPlays = AUDIO_DATA.reduce((acc, a) => acc + a.playsCount, 0);
+  const totalAudio = audioList.length;
+  // Fallback to 0 if duration/playsCount is missing, which schema defaults to 0 anyway
+  const totalDuration = audioList.reduce((acc, a) => acc + (a.duration || 0), 0);
+  const totalPlays = audioList.reduce((acc, a) => acc + (a.playsCount || 0), 0);
 
   const handlePlay = useCallback(
     (id: number) => {
@@ -321,7 +229,17 @@ export default function LibraryPage() {
 
         {/* Audio List */}
         <div className="space-y-3">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Loader2 className="mb-4 h-8 w-8 animate-spin" />
+              <p>Memuat koleksi audio...</p>
+            </div>
+          ) : error ? (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive">
+              <p>Gagal memuat data dari database.</p>
+              <p className="text-xs opacity-70 mt-1">({error})</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="rounded-xl border border-border bg-card p-12 text-center">
               <Headphones className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
               <p className="text-sm text-muted-foreground">
