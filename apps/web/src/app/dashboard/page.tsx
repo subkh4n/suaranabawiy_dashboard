@@ -1,10 +1,26 @@
 import { Radio, Users, Package, Headphones } from "lucide-react";
+import { db } from "@suara-nabawiy/db";
+import { products, orders, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
+import { count } from "drizzle-orm";
 
 /**
  * Halaman utama Dashboard Admin
  * Menampilkan statistik overview: listener, order, konten
  */
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Fetch statistics directly from database
+  const [
+    [productCount],
+    [audioCount],
+    [scheduleCount],
+    [orderCount]
+  ] = await Promise.all([
+    db.select({ value: count() }).from(products),
+    db.select({ value: count() }).from(audioLibrary),
+    db.select({ value: count() }).from(schedules),
+    db.select({ value: count() }).from(orders),
+  ]);
+
   return (
     <div>
       <h1 className="mb-2 text-2xl font-bold">Dashboard</h1>
@@ -23,27 +39,27 @@ export default function DashboardPage() {
         <StatCard
           icon={<Headphones className="h-5 w-5" />}
           title="Total Audio"
-          value="—"
+          value={audioCount.value.toString()}
           subtitle="Di library"
         />
         <StatCard
           icon={<Package className="h-5 w-5" />}
-          title="Total Order"
-          value="—"
-          subtitle="Bulan ini"
+          title="Total Produk"
+          value={productCount.value.toString()}
+          subtitle="Di katalog"
         />
         <StatCard
-          icon={<Users className="h-5 w-5" />}
-          title="Pengunjung"
-          value="—"
-          subtitle="Hari ini"
+          icon={<Package className="h-5 w-5" />}
+          title="Total Order"
+          value={orderCount.value.toString()}
+          subtitle="Total masuk"
         />
       </div>
 
-      {/* Placeholder note */}
+      {/* Quick Action Note */}
       <div className="mt-8 rounded-lg border border-border bg-card p-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Dashboard akan menampilkan data setelah API dan database dikonfigurasi.
+          Dashboard terhubung langsung ke database Neon. Data diperbarui secara real-time.
         </p>
       </div>
     </div>

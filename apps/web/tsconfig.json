@@ -4,6 +4,8 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"],
+      "@suara-nabawiy/db": ["../../packages/db/src"],
+      "@suara-nabawiy/db/*": ["../../packages/db/src/*"],
       "@suara-nabawiy/ui": ["../../packages/ui/src"],
       "@suara-nabawiy/ui/*": ["../../packages/ui/src/*"]
     },
