@@ -22,7 +22,7 @@ export default async function ShopPage() {
 
   return (
     <div className="px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-max-6xl">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-10 flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-primary/10">
             <ShoppingBag className="h-6 w-6 text-brand-primary" />
