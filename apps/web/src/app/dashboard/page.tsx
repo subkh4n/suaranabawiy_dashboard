@@ -1,6 +1,5 @@
 import { Radio, Package, Headphones } from "lucide-react";
-import { db } from "@suara-nabawiy/db";
-import { products, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
+import { db, products, audioLibrary, schedules, orders } from "@suara-nabawiy/db";
 import { count } from "drizzle-orm";
 
 /**
@@ -52,6 +51,12 @@ export default async function DashboardPage() {
           title="Total Produk"
           value={productCount.toString()}
           subtitle="Di katalog"
+        />
+        <StatCard
+          icon={<Radio className="h-5 w-5" />}
+          title="Total Jadwal"
+          value={scheduleCount.toString()}
+          subtitle="Siaran terjadwal"
         />
         <StatCard
           icon={<Package className="h-5 w-5" />}

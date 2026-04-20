@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@suara-nabawiy/db";
-import { products, orders, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
+import { products, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
 import { eq } from "drizzle-orm";
 
 /**

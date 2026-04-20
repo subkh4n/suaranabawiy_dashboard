@@ -1,5 +1,4 @@
-import { db } from "@suara-nabawiy/db";
-import { schedules } from "@suara-nabawiy/db/schema";
+import { db, schedules } from "@suara-nabawiy/db";
 import { asc } from "drizzle-orm";
 import { ScheduleManager } from "@/components/dashboard/schedule-manager";
 
