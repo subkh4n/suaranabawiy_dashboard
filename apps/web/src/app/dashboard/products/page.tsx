@@ -3,6 +3,8 @@ import { products } from "@suara-nabawiy/db/schema/products";
 import { desc } from "drizzle-orm";
 import { ProductManager } from "@/components/dashboard/product-manager";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Kelola Produk | Dashboard Admin",
 };

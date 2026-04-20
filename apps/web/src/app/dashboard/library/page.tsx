@@ -3,6 +3,8 @@ import { audioLibrary } from "@suara-nabawiy/db/schema";
 import { desc } from "drizzle-orm";
 import { LibraryManager } from "@/components/dashboard/library-manager";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Kelola Library | Dashboard Admin",
 };

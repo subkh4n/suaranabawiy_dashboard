@@ -2,6 +2,8 @@ import { Radio, Package, Headphones } from "lucide-react";
 import { db, products, audioLibrary, schedules, orders } from "@suara-nabawiy/db";
 import { count } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Halaman utama Dashboard Admin
  * Menampilkan statistik overview: listener, order, konten

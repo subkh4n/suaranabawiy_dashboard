@@ -2,6 +2,8 @@ import { db, schedules } from "@suara-nabawiy/db";
 import { asc } from "drizzle-orm";
 import { ScheduleManager } from "@/components/dashboard/schedule-manager";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Kelola Jadwal | Dashboard Admin",
 };
