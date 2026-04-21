@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { db } from "@suara-nabawiy/db";
-import { products, audioLibrary, schedules } from "@suara-nabawiy/db/schema";
-import { eq } from "drizzle-orm";
+import { 
+  createProduct, updateProduct, deleteProduct as apiDeleteProduct,
+  createAudio, updateAudio, deleteAudio as apiDeleteAudio,
+  createSchedule, updateSchedule, deleteSchedule as apiDeleteSchedule
+} from "@/lib/api-client";
 
 /**
  * PRODUCTS ACTIONS
@@ -13,14 +15,9 @@ export async function upsertProduct(formData: any) {
   const { id, ...data } = formData;
   
   if (id) {
-    // Update
-    await db.update(products).set({
-      ...data,
-      updatedAt: new Date(),
-    }).where(eq(products.id, id));
+    await updateProduct(id, data);
   } else {
-    // Insert
-    await db.insert(products).values(data);
+    await createProduct(data);
   }
 
   revalidatePath("/dashboard/products");
@@ -29,7 +26,7 @@ export async function upsertProduct(formData: any) {
 }
 
 export async function deleteProduct(id: number) {
-  await db.delete(products).where(eq(products.id, id));
+  await apiDeleteProduct(id);
   revalidatePath("/dashboard/products");
   revalidatePath("/shop");
   return { success: true };
@@ -43,11 +40,9 @@ export async function upsertAudio(formData: any) {
   const { id, ...data } = formData;
   
   if (id) {
-    await db.update(audioLibrary).set({
-      ...data,
-    }).where(eq(audioLibrary.id, id));
+    await updateAudio(id, data);
   } else {
-    await db.insert(audioLibrary).values(data);
+    await createAudio(data);
   }
 
   revalidatePath("/dashboard/library");
@@ -56,7 +51,7 @@ export async function upsertAudio(formData: any) {
 }
 
 export async function deleteAudio(id: number) {
-  await db.delete(audioLibrary).where(eq(audioLibrary.id, id));
+  await apiDeleteAudio(id);
   revalidatePath("/dashboard/library");
   revalidatePath("/library");
   return { success: true };
@@ -68,16 +63,11 @@ export async function deleteAudio(id: number) {
 
 export async function upsertSchedule(formData: any) {
   const { id, ...data } = formData;
-  
-  const payload = {
-    ...data,
-    updatedAt: new Date(),
-  };
 
   if (id) {
-    await db.update(schedules).set(payload).where(eq(schedules.id, id));
+    await updateSchedule(id, data);
   } else {
-    await db.insert(schedules).values(payload);
+    await createSchedule(data);
   }
 
   revalidatePath("/dashboard/schedules");
@@ -86,7 +76,7 @@ export async function upsertSchedule(formData: any) {
 }
 
 export async function deleteSchedule(id: number) {
-  await db.delete(schedules).where(eq(schedules.id, id));
+  await apiDeleteSchedule(id);
   revalidatePath("/dashboard/schedules");
   revalidatePath("/schedules");
   return { success: true };

@@ -1,6 +1,4 @@
-import { db } from "@suara-nabawiy/db";
-import { products } from "@suara-nabawiy/db/schema/products";
-import { desc } from "drizzle-orm";
+import { getProducts } from "@/lib/api-client";
 import { ProductManager } from "@/components/dashboard/product-manager";
 
 export const dynamic = "force-dynamic";
@@ -10,18 +8,25 @@ export const metadata = {
 };
 
 export default async function ProductsDashboardPage() {
-  const allProducts = await db.select().from(products).orderBy(desc(products.createdAt));
+  let safeProducts: any[] = [];
 
-  // Map to the interface expected by the client component
-  const safeProducts = allProducts.map(p => ({
-    id: p.id,
-    name: p.name,
-    description: p.description ?? "",
-    price: p.price,
-    stock: p.stock,
-    category: p.category ?? "Lainnya",
-    slug: p.slug
-  }));
+  try {
+    const allProducts = await getProducts();
+    const sortedProducts = [...allProducts].sort((a, b) => b.id - a.id);
+
+    // Map to the interface expected by the client component
+    safeProducts = sortedProducts.map(p => ({
+      id: p.id,
+      name: p.name,
+      description: p.description ?? "",
+      price: p.price,
+      stock: p.stock,
+      category: p.category ?? "Lainnya",
+      slug: p.slug
+    }));
+  } catch (error) {
+    console.error("Failed to fetch products for dashboard", error);
+  }
 
   return <ProductManager initialProducts={safeProducts} />;
 }

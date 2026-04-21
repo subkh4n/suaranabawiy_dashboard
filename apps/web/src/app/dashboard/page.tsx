@@ -1,31 +1,22 @@
 import { Radio, Package, Headphones } from "lucide-react";
-import { db, products, audioLibrary, schedules, orders } from "@suara-nabawiy/db";
-import { count } from "drizzle-orm";
+import { getStats } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Halaman utama Dashboard Admin
- * Menampilkan statistik overview: listener, order, konten
+ * Menampilkan statistik overview dari API
  */
 export default async function DashboardPage() {
-  // Fetch statistics directly from database
-  const [
-    productCountResults,
-    audioCountResults,
-    scheduleCountResults,
-    orderCountResults
-  ] = await Promise.all([
-    db.select({ value: count() }).from(products),
-    db.select({ value: count() }).from(audioLibrary),
-    db.select({ value: count() }).from(schedules),
-    db.select({ value: count() }).from(orders),
-  ]);
+  let stats = { products: 0, audio: 0, schedules: 0, orders: 0 };
+  let error = null;
 
-  const productCount = productCountResults[0]?.value ?? 0;
-  const audioCount = audioCountResults[0]?.value ?? 0;
-  const scheduleCount = scheduleCountResults[0]?.value ?? 0;
-  const orderCount = orderCountResults[0]?.value ?? 0;
+  try {
+    stats = await getStats();
+  } catch (err: any) {
+    console.error("API Error (Stats):", err);
+    error = err.message;
+  }
 
   return (
     <div>
@@ -33,6 +24,12 @@ export default async function DashboardPage() {
       <p className="mb-8 text-sm text-muted-foreground">
         Selamat datang di panel admin Suara Nabawiy.
       </p>
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive">
+          <p className="text-sm font-medium">Gagal memuat statistik ({error})</p>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -45,25 +42,25 @@ export default async function DashboardPage() {
         <StatCard
           icon={<Headphones className="h-5 w-5" />}
           title="Total Audio"
-          value={audioCount.toString()}
+          value={stats.audio.toString()}
           subtitle="Di library"
         />
         <StatCard
           icon={<Package className="h-5 w-5" />}
           title="Total Produk"
-          value={productCount.toString()}
+          value={stats.products.toString()}
           subtitle="Di katalog"
         />
         <StatCard
           icon={<Radio className="h-5 w-5" />}
           title="Total Jadwal"
-          value={scheduleCount.toString()}
+          value={stats.schedules.toString()}
           subtitle="Siaran terjadwal"
         />
         <StatCard
           icon={<Package className="h-5 w-5" />}
           title="Total Order"
-          value={orderCount.toString()}
+          value={stats.orders.toString()}
           subtitle="Total masuk"
         />
       </div>
@@ -71,7 +68,7 @@ export default async function DashboardPage() {
       {/* Quick Action Note */}
       <div className="mt-8 rounded-lg border border-border bg-card p-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Dashboard terhubung langsung ke database Neon. Data diperbarui secara real-time.
+          Dashboard terhubung ke API backend Suara Nabawiy. Data diperbarui secara berkala.
         </p>
       </div>
     </div>

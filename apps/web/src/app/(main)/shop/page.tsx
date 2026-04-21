@@ -1,22 +1,21 @@
 import { ShoppingBag } from "lucide-react";
-import { db, schema } from "@suara-nabawiy/db";
+import { getProducts } from "@/lib/api-client";
 import { ProductGrid } from "@/components/shop/product-grid";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Halaman Toko Islami (Server Component)
- * Mengambil data langsung dari Neon Database menggunakan @suara-nabawiy/db
+ * Mengambil data dari API
  */
 export default async function ShopPage() {
   let products: any[] = [];
   let error: string | null = null;
 
   try {
-    // Fetch directly from Neon via Drizzle
-    products = await db.select().from(schema.products);
+    products = await getProducts();
   } catch (err: any) {
-    console.error("Database Error:", err);
+    console.error("API Error:", err);
     error = err.message;
   }
 
@@ -37,7 +36,7 @@ export default async function ShopPage() {
 
         {error ? (
           <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive">
-            <p>Gagal memuat produk dari database.</p>
+            <p>Gagal memuat produk dari API.</p>
             <p className="text-xs opacity-70 mt-1">({error})</p>
           </div>
         ) : (

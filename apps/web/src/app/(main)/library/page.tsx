@@ -1,5 +1,5 @@
 import { Headphones, Clock, TrendingUp } from "lucide-react";
-import { db, schema } from "@suara-nabawiy/db";
+import { getAudioLibrary } from "@/lib/api-client";
 import { AudioLibraryClient } from "@/components/library/audio-library-client";
 
 export const dynamic = "force-dynamic";
@@ -13,17 +13,15 @@ function formatCount(count: number): string {
 
 /**
  * Halaman Audio Library (Server Component)
- * Mengambil data langsung dari Neon Database melalui @suara-nabawiy/db
+ * Mengambil data dari API
  */
 export default async function LibraryPage() {
   let audioList: any[] = [];
   let error: string | null = null;
 
   try {
-    // Fetch directly from Neon
-    const rawData = await db.select().from(schema.audioLibrary);
-    
-    // Map snake_case to camelCase
+    const rawData = await getAudioLibrary();
+
     audioList = rawData.map((a: any) => ({
       id: a.id,
       title: a.title,
@@ -31,12 +29,12 @@ export default async function LibraryPage() {
       speaker: a.speaker,
       description: a.description,
       duration: a.duration,
-      playsCount: a.plays_count,
-      fileUrl: a.file_url,
-      createdAt: a.created_at?.toISOString() || null,
+      playsCount: a.playsCount ?? a.plays_count,
+      fileUrl: a.fileUrl ?? a.file_url,
+      createdAt: a.createdAt ?? a.created_at ?? null,
     }));
   } catch (err: any) {
-    console.error("Database Error:", err);
+    console.error("API Error:", err);
     error = err.message;
   }
 
@@ -92,7 +90,7 @@ export default async function LibraryPage() {
 
         {error ? (
           <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive">
-            <p>Gagal memuat data dari database.</p>
+            <p>Gagal memuat data dari API.</p>
             <p className="text-xs opacity-70 mt-1">({error})</p>
           </div>
         ) : (

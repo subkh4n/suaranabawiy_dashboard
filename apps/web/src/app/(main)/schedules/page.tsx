@@ -1,7 +1,5 @@
 import { Calendar, Radio, Clock } from "lucide-react";
-import { db } from "@suara-nabawiy/db";
-import { schedules } from "@suara-nabawiy/db/schema";
-import { asc } from "drizzle-orm";
+import { getSchedules } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
 
@@ -9,18 +7,16 @@ const DAYS_OF_WEEK = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Aha
 
 /**
  * Halaman Jadwal Siaran (Server Component)
- * Menampilkan jadwal mingguan yang dikelola via Dashboard.
+ * Mengambil data dari API.
  */
 export default async function SchedulesPage() {
   let allSchedules: any[] = [];
   let error: string | null = null;
 
   try {
-    allSchedules = await db.query.schedules.findMany({
-      orderBy: [asc(schedules.startTimeOnly)],
-    });
+    allSchedules = await getSchedules();
   } catch (err: any) {
-    console.error("Database Error:", err);
+    console.error("API Error:", err);
     error = err.message;
   }
 
@@ -41,7 +37,7 @@ export default async function SchedulesPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Jadwal Siaran</h1>
               <p className="text-muted-foreground">
-                Jadwal harian & mingguan siaran rutin Suara Nabawiy
+                Jadwal harian &amp; mingguan siaran rutin Suara Nabawiy
               </p>
             </div>
           </div>

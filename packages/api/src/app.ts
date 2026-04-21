@@ -8,6 +8,8 @@ import { productsRoutes } from "./routes/products";
 import { ordersRoutes } from "./routes/orders";
 import { uploadRoutes } from "./routes/upload";
 import { errorHandler } from "./middleware/error-handler";
+import { db, schema } from "@suara-nabawiy/db";
+import { count } from "drizzle-orm";
 
 /** Aplikasi utama Hono.js */
 const app = new Hono().basePath("/api/v1");
@@ -28,6 +30,34 @@ app.get("/health", (c) => {
       timestamp: new Date().toISOString(),
     },
   });
+});
+
+// Stats endpoint — counts for dashboard overview
+app.get("/stats", async (c) => {
+  try {
+    const [productCount, audioCount, scheduleCount, orderCount] =
+      await Promise.all([
+        db.select({ value: count() }).from(schema.products),
+        db.select({ value: count() }).from(schema.audioLibrary),
+        db.select({ value: count() }).from(schema.schedules),
+        db.select({ value: count() }).from(schema.orders),
+      ]);
+
+    return c.json({
+      success: true,
+      data: {
+        products: productCount[0]?.value ?? 0,
+        audio: audioCount[0]?.value ?? 0,
+        schedules: scheduleCount[0]?.value ?? 0,
+        orders: orderCount[0]?.value ?? 0,
+      },
+    });
+  } catch (error) {
+    return c.json(
+      { success: false, error: { message: "Failed to fetch stats" } },
+      500
+    );
+  }
 });
 
 // Route modules

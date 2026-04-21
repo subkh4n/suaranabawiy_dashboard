@@ -1,6 +1,4 @@
-import { db } from "@suara-nabawiy/db";
-import { audioLibrary } from "@suara-nabawiy/db/schema";
-import { desc } from "drizzle-orm";
+import { getAudioLibrary } from "@/lib/api-client";
 import { LibraryManager } from "@/components/dashboard/library-manager";
 
 export const dynamic = "force-dynamic";
@@ -10,19 +8,28 @@ export const metadata = {
 };
 
 export default async function LibraryDashboardPage() {
-  const allAudio = await db.select().from(audioLibrary).orderBy(desc(audioLibrary.createdAt));
+  let safeAudio: any[] = [];
+  
+  try {
+    const allAudio = await getAudioLibrary();
+    // API returns data with createdAt sorting typically, but we should ensure the format matches what LibraryManager expects.
+    
+    // Sort descending by id or createdAt (assuming API returns it as-is)
+    const sortedAudio = [...allAudio].sort((a, b) => b.id - a.id);
 
-  // Map to the interface expected by the client component
-  const safeAudio = allAudio.map(a => ({
-    id: a.id,
-    title: a.title,
-    category: a.category,
-    speaker: a.speaker ?? "—",
-    description: a.description ?? "",
-    duration: a.duration,
-    playsCount: a.playsCount,
-    fileUrl: a.fileUrl
-  }));
+    safeAudio = sortedAudio.map(a => ({
+      id: a.id,
+      title: a.title,
+      category: a.category,
+      speaker: a.speaker ?? "—",
+      description: a.description ?? "",
+      duration: a.duration,
+      playsCount: a.playsCount,
+      fileUrl: a.fileUrl
+    }));
+  } catch (error) {
+    console.error("Failed to fetch audio for dashboard", error);
+  }
 
   return <LibraryManager initialItems={safeAudio} />;
 }

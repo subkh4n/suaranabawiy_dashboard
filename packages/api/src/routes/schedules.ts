@@ -6,12 +6,15 @@ import { eq } from "drizzle-orm";
 
 const scheduleRoutes = new Hono();
 
-/** Schema validasi insert */
+/** Schema validasi insert/update */
 const insertSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  startTime: z.coerce.date(),
-  endTime: z.coerce.date(),
+  dayOfWeek: z.string().optional(),
+  startTimeOnly: z.string().optional(),
+  endTimeOnly: z.string().optional(),
+  startTime: z.coerce.date().optional(),
+  endTime: z.coerce.date().optional(),
   speakerName: z.string().min(1),
   isLive: z.boolean().default(false),
 });
@@ -19,6 +22,16 @@ const insertSchema = z.object({
 /** Schema query pencarian */
 const querySchema = z.object({
   date: z.string().optional(),
+});
+
+/** GET /api/v1/schedules — List all schedules */
+scheduleRoutes.get("/", async (c) => {
+  try {
+    const data = await db.select().from(schema.schedules);
+    return c.json({ success: true, data });
+  } catch (error) {
+    return c.json({ success: false, error: { message: "Internal Error" } }, 500);
+  }
 });
 
 /** GET /api/v1/schedules/today */
